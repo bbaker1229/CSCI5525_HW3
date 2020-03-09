@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(28 * 28, 128, bias=True)
         self.rlu = nn.ReLU()
         self.fc2 = nn.Linear(128, 10, bias=False)
-        self.soft = nn.Softmax()
+        self.soft = nn.Softmax(dim=1)
 
     def forward(self, x):
         x = x.view(-1, 28 * 28)
@@ -47,8 +47,12 @@ net = Net()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.001)
 
-for epoch in range(2):
+training_loss = []
+test_loss = []
+for epoch in range(30):
+    print('Epoch #: %d' % (epoch + 1))
     running_loss = 0.0
+    total = 0.0
     for i, data in enumerate(train_loader, 0):
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
@@ -64,11 +68,30 @@ for epoch in range(2):
 
         # print statistics
         running_loss += loss.item()
-        if i % 2000 == 1999:    # print every 2000 mini-batches
-            print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / 2000))
-            running_loss = 0.0
+        total += 1.0
+        # if i % 500 == 499:    # print every 2000 mini-batches
+        #     print('[%d, %5d] loss: %.3f' %
+        #           (epoch + 1, i + 1, running_loss / 500))
+        #     running_loss = 0.0
+    training_loss.append(running_loss / total)
+    # print(training_loss)
+    print('Training Loss: %.4f' % (
+            training_loss[epoch]))
+    running_loss = 0.0
+    total = 0.0
+    with torch.no_grad():
+        for data in test_loader:
+            images, labels = data
+            outputs = net(images)
+            loss = criterion(outputs, labels)
+            # _, predicted = torch.max(outputs.data, 1)
+            running_loss += loss.item()
+            total += 1.0
+            # correct += (predicted == labels).sum().item()
+    test_loss.append(running_loss / total)
+    # print(test_loss)
+    print('Testing Loss: %.4f' % (
+            test_loss[epoch]))
 
 print("Finished Training")
 
-# Fix the softmax error....
