@@ -72,7 +72,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001)
 # Record the batch loss and the training accuracy for each epoch
 training_loss = []
 training_acc = []
-for epoch in range(30):
+for epoch in range(500):
     print('Epoch #: %d' % (epoch + 1))
     running_loss = 0.0
     batch_total = 0.0
@@ -101,6 +101,8 @@ for epoch in range(30):
             training_loss[epoch]))
     print('Training Accuracy: %.4f %%' % (
             training_acc[epoch]))
+    if (epoch > 0) and ((training_acc[epoch] - training_acc[epoch - 1]) < 0.01):
+        break
 print("Finished Training")
 
 # Plot Training Loss

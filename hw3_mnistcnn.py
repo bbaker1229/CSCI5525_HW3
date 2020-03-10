@@ -28,7 +28,6 @@ class Net(nn.Module):
         self.soft = nn.Softmax(dim=1)
 
     def forward(self, x):
-        # x = x.view(-1, 28 * 28)
         x = F.relu(self.pool(self.conv1(x)))
         x = x.view(-1, self.num_flat_features(x))
         x = F.relu(self.fc1(x))
@@ -83,7 +82,7 @@ optimizer = optim.SGD(net.parameters(), lr=0.001)
 # Record the batch loss and the training accuracy for each epoch
 training_loss = []
 training_acc = []
-for epoch in range(30):
+for epoch in range(500):
     print('Epoch #: %d' % (epoch + 1))
     running_loss = 0.0
     batch_total = 0.0
@@ -112,6 +111,8 @@ for epoch in range(30):
             training_loss[epoch]))
     print('Training Accuracy: %.4f %%' % (
             training_acc[epoch]))
+    if (epoch > 0) and (abs(training_acc[epoch] - training_acc[epoch - 1]) < 0.01):
+        break
 print("Finished Training")
 
 # Plot Training Loss
